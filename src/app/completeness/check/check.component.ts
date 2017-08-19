@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 })
 export class CheckComponent implements OnInit {
   @Input() resource: any;
-  @Output() onCompletePercentage = new EventEmitter<integer>();
+  @Output() onCompletePercentage = new EventEmitter<number>();
 
   constructor() { }
 
@@ -23,7 +23,7 @@ export class CheckComponent implements OnInit {
     this.onCompletePercentage.emit(getCompletedPercentage());
   }
 
-  getCompletedPercentage(): integer{
+  getCompletedPercentage(): number{
 
   }
 

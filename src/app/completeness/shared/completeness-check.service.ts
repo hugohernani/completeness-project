@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
 
 export interface WeightOptions {
-  low: integer,
-  medium: integer,
-  high: integer
+  low: number,
+  medium: number,
+  high: number
 }
 
 @Injectable()
@@ -23,12 +23,12 @@ export class CompletenessCheckService {
   resultsStream$ = this.results.asObservable();
 
   // Service message commands
-  updateCompleteness(resource: any, { weigths = default_weigths, required_checks }, { weigths: WeightOptions, required_checks: any }) {
+  updateCompleteness(resource: any, { weigths = default_weigths, required_checks }, { weigths: WeightOptions, required_checks: any }): Observable<number> {
     // TODO Check completeness for resource
     this.results.next(results);
   }
 
-  confirmMission(astronaut: string) {
+  confirmMission(astronaut: string): Observable<number> {
     this.missionConfirmedSource.next(astronaut);
   }
 }
