@@ -1,19 +1,38 @@
 import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
 
+export enum ValidatorTypes {
+  PRESENCE = 'presence'
+}
+
+class ResourceConditionValidator {
+  static validate(source: SourceResourceCheck): boolean {
+    if(ValidatorTypes[source.condition_type.toUpperCase()] === 'presence'){ return !!source.resource[source.name]; }
+  }
+}
+
 export interface WeightOptions {
   readonly low: number,
   readonly medium: number,
   readonly high: number
 }
 
-export interface ResourceCheck {
+export interface BaseResourceCheck {
   name: string,
-  condition: (resource: any) => boolean,
-  weighting: number; // medium weight
+  weighting?: number
 }
 
-export interface SourceResourceCheck extends ResourceCheck {
+export interface ConditionalResourceCheck extends BaseResourceCheck {
+  condition?: (resource: any) => boolean
+}
+
+export interface ValidatingResourceCheck extends BaseResourceCheck {
+  condition_type?: ValidatorTypes
+}
+
+export type ResourceCheck = ConditionalResourceCheck | ValidatingResourceCheck;
+
+export interface SourceResourceCheck extends ConditionalResourceCheck, ValidatingResourceCheck {
   resource: any
 }
 
@@ -73,6 +92,11 @@ export class CompletenessCheckService {
 
   private allChecksAccordingToCheckState(should_pass = true): Array<ResourceCheck> {
     return this.completeness_checks_arr
-      .filter((source) => source.condition(source.resource) === should_pass);
+      .filter(function(source){
+        let result = false;
+        if(source.condition_type){ result = ResourceConditionValidator.validate(source); }
+        else if(source.condition){ result = source.condition(source.resource); }
+        return result === should_pass;
+      });
   }
 }
