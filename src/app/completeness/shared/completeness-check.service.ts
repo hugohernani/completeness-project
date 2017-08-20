@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
 
-export enum ValidatorTypes {
-  PRESENCE = 'presence'
-}
-
-class ResourceConditionValidator {
+export class ResourceConditionValidator {
   static validate(source: SourceResourceCheck): boolean {
-    if(ValidatorTypes[source.condition_type.toUpperCase()] === 'presence'){ return !!source.resource[source.name]; }
+    if(source.condition_type.toLowerCase() === 'presence'){
+      return !!source.resource[source.name];
+    }
   }
 }
 
@@ -27,7 +25,7 @@ export interface ConditionalResourceCheck extends BaseResourceCheck {
 }
 
 export interface ValidatingResourceCheck extends BaseResourceCheck {
-  condition_type?: ValidatorTypes
+  condition_type?: string
 }
 
 export type ResourceCheck = ConditionalResourceCheck | ValidatingResourceCheck;
@@ -38,7 +36,7 @@ export interface SourceResourceCheck extends ConditionalResourceCheck, Validatin
 
 @Injectable()
 export class CompletenessCheckService {
-  private default_weights: WeightOptions = {
+  public default_weights: WeightOptions = {
     low: 30,
     medium: 60,
     high: 100
@@ -52,8 +50,9 @@ export class CompletenessCheckService {
   setCompletenessChecks(resource: any,
                      resource_checks: Array<ResourceCheck>,
                      weights: WeightOptions = this.default_weights): void {
+    this.default_weights = weights;
     for(let resource_check of resource_checks) {
-      if (!resource_check.weighting) resource_check.weighting = this.weights['medium'];
+      if (!resource_check.weighting) resource_check.weighting = weights['medium'];
       if(resource.hasOwnProperty(resource_check.name)){
         let source_resource_check = resource_check as SourceResourceCheck;
         source_resource_check.resource = resource;
@@ -62,35 +61,39 @@ export class CompletenessCheckService {
     }
   }
 
-  maxCompletenessScore(): number {
+  getMaxCompletenessScore(): number {
     return this.completeness_checks_arr
-      .map((source_check) => source_check.weighting)
+      .map((source_check) => this.default_weights[source_check.weighting])
       .reduce((prev, cur) => { return prev + cur }, 0);
   }
 
-  passedChecks(): Array<ResourceCheck> {
-    return this.allChecksAccordingToCheckState();
+  getPassedChecks(): Array<ResourceCheck> {
+    return this.getAllChecksAccordingToCheckState();
   }
 
-  failedChecks(): Array<ResourceCheck> {
-    return this.allChecksAccordingToCheckState(false);
+  getFailedChecks(): Array<ResourceCheck> {
+    return this.getAllChecksAccordingToCheckState(false);
   }
 
-  completenessScore(): number {
-    return this.passedChecks()
-      .map((check) => check.weighting)
+  getAllCompletenessChecks(): Array<ResourceCheck> {
+    return this.completeness_checks_arr;
+  }
+
+  getCompletenessScore(): number {
+    return this.getPassedChecks()
+      .map((check) => this.default_weights[check.weighting])
       .reduce((prev, cur) => { return prev + cur }, 0);
   }
 
   getCompletenessPercentage(): number {
-    return this.completenessScore() / this.maxCompletenessScore() * 100;
+    return this.getCompletenessScore() / this.getMaxCompletenessScore() * 100;
   }
 
-  getCompletenessResults(): Observable<number> {
-    return this.results.asObservable();
-  }
+  // getCompletenessResults(): Observable<number> {
+  //   return this.results.asObservable();
+  // }
 
-  private allChecksAccordingToCheckState(should_pass = true): Array<ResourceCheck> {
+  private getAllChecksAccordingToCheckState(should_pass = true): Array<ResourceCheck> {
     return this.completeness_checks_arr
       .filter(function(source){
         let result = false;
