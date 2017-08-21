@@ -56,32 +56,24 @@ export class CompletenessCheckService{
 
 
   setCompletenessChecks(resource: any, condition_type: string, attrs: Array<string>,
-                        weights?: WeightOptions): Observable<IResult>;
-  setCompletenessChecks(resource: any,
-                     resource_checks: Array<ResourceCheck>,
-                     weights?: WeightOptions): Observable<IResult>;
-  setCompletenessChecks(resource: any,
-                        condition_type_or_resource_checks: string | Array<ResourceCheck>,
-                        attrs_or_weigths?: Array<string> | WeightOptions, opt_weights?: WeightOptions): Observable<IResult> {
-
-    let resource_checks: Array<ResourceCheck>;
-    let weights: WeightOptions;
-    if(typeof condition_type_or_resource_checks === 'string'){
-      weights = opt_weights;
-      for(let attr of (attrs_or_weigths as Array<string>)){
-        let resource_check = {name: attr, condition_type: condition_type_or_resource_checks};
-        resource_checks.push(resource_check);
-      }
-    }else{
-      weights = attrs_or_weigths as WeightOptions;
-      resource_checks = condition_type_or_resource_checks as Array<ResourceCheck>;
-    }
-    if(weights === undefined) weights = this.default_weights;
-
+                        common_weigth?: string,
+                        weights?: WeightOptions): Observable<IResult> {
+    let resource_checks = attrs.map((attr) => { return {name: attr, condition_type: condition_type} });
     this.populateCompletenessChecksArr(resource, resource_checks, weights);
 
     // this.updateResults();
     return this.results.asObservable();
+  }
+
+  setWeightFor(attr_or_resource_check: string | ResourceCheck, weighting: string): void {
+    let attr: string;
+
+    if(typeof(attr_or_resource_check) === 'string'){ attr = attr_or_resource_check; }
+    else{ attr = attr_or_resource_check.name; };
+
+    let resource_check = this.resource_check_find(attr);
+    if(resource_check === undefined){ throw new Error("None ResourceCheck Found For " + attr); }
+    resource_check.weighting = weighting;
   }
 
   getMaxCompletenessScore(): number {
@@ -139,7 +131,7 @@ export class CompletenessCheckService{
   private populateCompletenessChecksArr(resource: any,
                                         resource_checks: Array<ResourceCheck>,
                                         weights: WeightOptions) {
-    this.default_weights = weights;
+    if(weights !== undefined) this.default_weights = weights;
 
     for(let resource_check of resource_checks) {
       if (!resource_check.weighting) resource_check.weighting = 'medium';
@@ -149,5 +141,9 @@ export class CompletenessCheckService{
         this.completeness_checks_arr.push(source_resource_check);
       }
     }
+  }
+
+  private resource_check_find(attr: string): SourceResourceCheck {
+    return this.completeness_checks_arr.filter((r_check) => r_check.name === attr)[0];
   }
 }

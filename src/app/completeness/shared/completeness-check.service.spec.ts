@@ -21,7 +21,7 @@ describe('ResourceConditionValidator', () => {
 });
 
 describe('CompletenessCheckService', () => {
-  let service, user, resource_checks;
+  let service, user, resource_checks, attrs;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -33,12 +33,9 @@ describe('CompletenessCheckService', () => {
     service = s;
 
     user = { name: 'Name', age: undefined, genre: '', profession: 'student' };
-    resource_checks = [
-      { name: 'name', condition_type: 'presence', weighting: 'high' },
-      { name: 'age', condition_type: 'presence', weighting: 'medium' },
-      { name: 'genre', condition_type: 'presence', weighting: 'medium'}
-    ];
-    service.setCompletenessChecks(user, resource_checks);
+    attrs = ['name', 'age', 'genre'];
+    service.setCompletenessChecks(user, 'presence', attrs);
+    service.setWeightFor('name', 'high');
   }));
 
   it('should be created', () => {
@@ -47,32 +44,29 @@ describe('CompletenessCheckService', () => {
 
   it('should return the amount of checks defined', () => {
     let completeness_checks = service.getAllCompletenessChecks();
-    expect(completeness_checks.length).toEqual(resource_checks.length);
+    expect(completeness_checks.length).toEqual(attrs.length);
   });
 
 
   it('should return the amount of Passed checks defined', () => {
     let service_passed_checks = service.getPassedChecks();
-    let filtered_resource_checks = resource_checks.filter((resource_check) => {
-      return user[resource_check.name] !== undefined && user[resource_check.name].length > 0
+    let filtered_resource_checks = attrs.filter((attr) => {
+      return user[attr] !== undefined && user[attr].length > 0
     });
     expect(service_passed_checks.length).toEqual(filtered_resource_checks.length);
   });
 
   it('should return the amount of Failed checks defined', () => {
     let service_failed_checks = service.getFailedChecks();
-    let filtered_resource_checks = resource_checks.filter((resource_check) => {
-      return !(user[resource_check.name] !== undefined && user[resource_check.name].length > 0);
+    let filtered_resource_checks = attrs.filter((attr) => {
+      return !(user[attr] !== undefined && user[attr].length > 0);
     });
     expect(service_failed_checks.length).toEqual(filtered_resource_checks.length);
   });
 
   it('should return the maximum of completeness score', () => {
     let max_completeness_score = service.getMaxCompletenessScore();
-    let mapped_reduced_score = resource_checks
-      .map((resource_check) => service.default_weights[resource_check.weighting])
-      .reduce((prev, cur) => {return prev + cur}, 0);
-    expect(max_completeness_score).toEqual(mapped_reduced_score);
+    expect(max_completeness_score).toEqual(220); // TODO
   });
 
   it('should return the percentage of completeness score', () => {
