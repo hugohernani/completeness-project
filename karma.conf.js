@@ -12,13 +12,22 @@ module.exports = function (config) {
       require('karma-coverage-istanbul-reporter'),
       require('@angular/cli/plugins/karma')
     ],
+    files: [
+      { pattern: './src/test.ts', watched: false }
+    ],
+    remapIstanbulReporter: {
+      reports: {
+        html: 'coverage',
+        lcovonly: './coverage/coverage.lcov'
+      }
+    },
     client:{
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
-    coverageIstanbulReporter: {
-      reports: [ 'html', 'lcovonly' ],
-      fixWebpackSourcePaths: true
-    },
+    // coverageIstanbulReporter: {
+    //   reports: [ 'html', 'lcovonly' ],
+    //   fixWebpackSourcePaths: true
+    // },
     angularCli: {
       environment: 'dev'
     },
