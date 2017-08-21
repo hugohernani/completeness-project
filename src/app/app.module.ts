@@ -5,11 +5,15 @@ import { CompletenessCheckService } from './completeness/shared/completeness-che
 
 import { AppComponent } from './app.component';
 import { ProfileComponent } from './profile/profile.component';
+import { AddressComponent } from './address/address.component';
+import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ProfileComponent
+    ProfileComponent,
+    AddressComponent,
+    ProgressBarComponent
   ],
   imports: [
     BrowserModule,

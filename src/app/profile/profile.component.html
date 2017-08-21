@@ -1,49 +1,36 @@
-<div class="container">
-  <h1>Profile</h1>
-
-  <div class="progress">
-    <div class="progress-bar progress-bar-striped active" role="progressbar"
-      [attr.aria-valuenow]="profile_completeness" aria-valuemin="0" aria-valuemax="100"
-      [style]="sanitizeStyle('width', profile_completeness, '%')">
-      {{profile_completeness}}% Complete
+<fieldset>
+  <legend>Details</legend>
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input [(ngModel)]="user.name" name="name" type="text" class="form-control" id="name">
+      </div>
+    </div>
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input type="number" [(ngModel)]="user.age" class="form-control" id="age" name="age">
+      </div>
+    </div>
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label class="radio-inline">
+          <input type="radio" [(ngModel)]="user.genre" name="genre" id="male" value="male"> M
+        </label>
+        <label class="radio-inline">
+          <input type="radio" [(ngModel)]="user.genre" name="genre" id="female" value="female"> F
+        </label>
+      </div>
     </div>
   </div>
 
-  <form #userForm="ngForm">
-    <div class="row">
-      <div class="col-sm-8">
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input [(ngModel)]="user.name" name="name" type="text" class="form-control" id="name">
-        </div>
-      </div>
-      <div class="col-sm-2">
-        <div class="form-group">
-          <label for="age">Age</label>
-          <input type="number" [(ngModel)]="user.age" class="form-control" id="age" name="age">
-        </div>
-      </div>
-      <div class="col-sm-2">
-        <div class="form-group">
-          <label class="radio-inline">
-            <input type="radio" [(ngModel)]="user.genre" name="genre" id="male" value="male"> M
-          </label>
-          <label class="radio-inline">
-            <input type="radio" [(ngModel)]="user.genre" name="genre" id="female" value="female"> F
-          </label>
-        </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea [(ngModel)]="user.bio" name="bio" class="form-control" id="bio" rows="10"></textarea>
       </div>
     </div>
-
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="form-group">
-          <label for="bio">Bio</label>
-          <textarea [(ngModel)]="user.bio" name="bio" class="form-control" id="bio" rows="50"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-success">Submit</button>
-  </form>
-</div>
+  </div>
+</fieldset>

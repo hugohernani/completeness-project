@@ -1,4 +1,3 @@
-import { DomSanitizer } from '@angular/platform-browser';
 import { Component, OnInit, DoCheck } from '@angular/core';
 import { User } from './shared/user';
 import { CompletenessCheckService } from '../completeness/shared/completeness-check.service';
@@ -11,28 +10,23 @@ import { CompletenessCheckService } from '../completeness/shared/completeness-ch
 
 export class ProfileComponent implements OnInit, DoCheck {
   user: User;
-  profile_completeness: number;
 
-  constructor(private sanitizer: DomSanitizer,
-              public completeness_service: CompletenessCheckService){
+  constructor(public completeness_service: CompletenessCheckService){
     this.user = new User(42, '');
-    this.profile_completeness = 0;
+
   }
 
   ngOnInit() {
-    this.completeness_service.setCompletenessChecks(
-      this.user, 'presence', ['name', 'age', 'genre']
-    ).subscribe((results) => {
-      if(results) this.profile_completeness = results.percentage;
-    });
+    this.completeness_service.addCompletenessTrack(
+      this.user, 'presence', ['name', 'age']
+    )
+
+    this.completeness_service.addCompletenessTrack(
+      this.user, 'presence', ['genre']
+    )
   }
 
   ngDoCheck(): void {
     this.completeness_service.updateResults();
-  }
-
-  sanitizeStyle(property: string, value: any, meters: string): any {
-    let style = property + ": " + value + meters;
-    return this.sanitizer.bypassSecurityTrustStyle(style);
   }
 }

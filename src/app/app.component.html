@@ -1,2 +1,11 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<completeness-profile></completeness-profile>
+<div class="container">
+  <h1>Profile</h1>
+  <completeness-progress-bar></completeness-progress-bar>
+
+  <form #userForm="ngForm">
+    <completeness-profile></completeness-profile>
+    <completeness-address></completeness-address>
+
+    <button type="submit" class="btn btn-success">Submit</button>
+  </form>
+</div>
