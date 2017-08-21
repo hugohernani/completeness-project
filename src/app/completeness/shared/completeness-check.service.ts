@@ -114,7 +114,7 @@ export class CompletenessCheckService{
       max_score: this.getMaxCompletenessScore(),
       passed_checks: this.getPassedChecks().map((r) => r.name),
       failed_checks: this.getFailedChecks().map((r) => r.name),
-      percentage: this.getCompletenessPercentage()
+      percentage: Math.round(this.getCompletenessPercentage())
     }));
   }
 
