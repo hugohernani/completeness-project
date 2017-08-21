@@ -1,7 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ResourceConditionValidator } from './completeness-check.service';
-import { CompletenessCheckService } from './completeness-check.service';
+import { ResourceConditionValidator, CompletenessCheckService } from './completeness-check.service';
 
 describe('ResourceConditionValidator', () => {
   let static_class, valid_source, invalid_source;
@@ -51,6 +50,7 @@ describe('CompletenessCheckService', () => {
     expect(completeness_checks.length).toEqual(resource_checks.length);
   });
 
+
   it('should return the amount of Passed checks defined', () => {
     let service_passed_checks = service.getPassedChecks();
     let filtered_resource_checks = resource_checks.filter((resource_check) => {
@@ -89,6 +89,12 @@ describe('CompletenessCheckService', () => {
     expect(completeness_score).toEqual(score_sum);
   });
 
-
+  it('should return a not empty object when updating a service with some results', () => {
+    service.updateResults();
+    service.getResults()
+      .subscribe((results) => {
+        expect(results).not.toEqual({});
+      })
+  });
 
 });

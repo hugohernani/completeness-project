@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Subject }    from 'rxjs/Subject';
+import { Observable } from 'rxjs';
+import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
 
 export class ResourceConditionValidator {
   static validate(source: SourceResourceCheck): boolean {
@@ -15,9 +16,17 @@ export interface WeightOptions {
   readonly high: number
 }
 
+export interface IResult {
+  score: number,
+  max_score: number,
+  passed_checks: string[],
+  failed_checks: string[],
+  percentage: number
+}
+
 export interface BaseResourceCheck {
   name: string,
-  weighting?: number
+  weighting?: string
 }
 
 export interface ConditionalResourceCheck extends BaseResourceCheck {
@@ -35,30 +44,31 @@ export interface SourceResourceCheck extends ConditionalResourceCheck, Validatin
 }
 
 @Injectable()
-export class CompletenessCheckService {
-  public default_weights: WeightOptions = {
-    low: 30,
-    medium: 60,
-    high: 100
-  };
-
-  private completeness_checks_arr: Array<SourceResourceCheck> = [];
-
-  // Observable results sources
-  private results = new Subject<any>();
+export class CompletenessCheckService{
+  public default_weights: WeightOptions;
+  private completeness_checks_arr;
+  private results: BehaviorSubject<IResult>;
+  constructor(){
+      this.default_weights = { low: 30, medium: 60, high: 100 };
+      this.completeness_checks_arr = [];
+      this.results = new BehaviorSubject<IResult>(null);
+  }
 
   setCompletenessChecks(resource: any,
                      resource_checks: Array<ResourceCheck>,
-                     weights: WeightOptions = this.default_weights): void {
+                     weights: WeightOptions = this.default_weights): Observable<IResult> {
     this.default_weights = weights;
     for(let resource_check of resource_checks) {
-      if (!resource_check.weighting) resource_check.weighting = weights['medium'];
+      if (!resource_check.weighting) resource_check.weighting = 'medium';
       if(resource.hasOwnProperty(resource_check.name)){
         let source_resource_check = resource_check as SourceResourceCheck;
         source_resource_check.resource = resource;
         this.completeness_checks_arr.push(source_resource_check);
       }
     }
+
+    // this.updateResults();
+    return this.results.asObservable();
   }
 
   getMaxCompletenessScore(): number {
@@ -89,9 +99,19 @@ export class CompletenessCheckService {
     return this.getCompletenessScore() / this.getMaxCompletenessScore() * 100;
   }
 
-  // getCompletenessResults(): Observable<number> {
-  //   return this.results.asObservable();
-  // }
+  getResults(): Observable<IResult> {
+    return this.results.asObservable();
+  }
+
+  updateResults(): void {
+    this.results.next(Object.assign({
+      score: this.getCompletenessScore(),
+      max_score: this.getMaxCompletenessScore(),
+      passed_checks: this.getPassedChecks().map((r) => r.name),
+      failed_checks: this.getFailedChecks().map((r) => r.name),
+      percentage: this.getCompletenessPercentage()
+    }));
+  }
 
   private getAllChecksAccordingToCheckState(should_pass = true): Array<ResourceCheck> {
     return this.completeness_checks_arr
