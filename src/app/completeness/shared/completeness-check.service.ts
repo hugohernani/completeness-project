@@ -54,8 +54,7 @@ export class CompletenessCheckService{
       this.results = new BehaviorSubject<IResult>(null);
   }
 
-
-  setCompletenessChecks(resource: any, condition_type: string, attrs: Array<string>,
+  addCompletenessTrack(resource: any, condition_type: string, attrs: Array<string>,
                         common_weigth?: string,
                         weights?: WeightOptions): Observable<IResult> {
     let resource_checks = attrs.map((attr) => { return {name: attr, condition_type: condition_type} });

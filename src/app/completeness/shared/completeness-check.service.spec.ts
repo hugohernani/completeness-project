@@ -34,7 +34,7 @@ describe('CompletenessCheckService', () => {
 
     user = { name: 'Name', age: undefined, genre: '', profession: 'student' };
     attrs = ['name', 'age', 'genre'];
-    service.setCompletenessChecks(user, 'presence', attrs);
+    service.addCompletenessTrack(user, 'presence', attrs);
     service.setWeightFor('name', 'high');
   }));
 
