@@ -1,27 +1,29 @@
 <fieldset>
   <legend>Address</legend>
-  <div class="row col-sm-4">
-    <div class="form-group">
-      <label for="street">Street</label>
-      <input [(ngModel)]="address.street" name="street" type="text" class="form-control" id="street">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="street">Street</label>
+        <input [(ngModel)]="address.street" name="street" type="text" class="form-control" id="street">
+      </div>
     </div>
-  </div>
-  <div class="row col-sm-2">
-    <div class="form-group">
-      <label for="number">Number</label>
-      <input [(ngModel)]="address.number" name="number" type="text" class="form-control" id="number">
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label for="number">Number</label>
+        <input [(ngModel)]="address.number" name="number" type="text" class="form-control" id="number">
+      </div>
     </div>
-  </div>
-  <div class="row col-sm-2">
-    <div class="form-group">
-      <label for="city">City</label>
-      <input [(ngModel)]="address.city" name="city" type="text" class="form-control" id="city">
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label for="city">City</label>
+        <input [(ngModel)]="address.city" name="city" type="text" class="form-control" id="city">
+      </div>
     </div>
-  </div>
-  <div class="row col-sm-2">
-    <div class="form-group">
-      <label for="state">State</label>
-      <input [(ngModel)]="address.state" name="state" type="text" class="form-control" id="state">
-    </div>
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label for="state">State</label>
+        <input [(ngModel)]="address.state" name="state" type="text" class="form-control" id="state">
+      </div>
+    </div>    
   </div>
 </fieldset>
