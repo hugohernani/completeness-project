@@ -1,47 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
-
-export class ResourceConditionValidator {
-  static validate(source: SourceResourceCheck): boolean {
-    if(source.condition_type.toLowerCase() === 'presence'){
-      return !!source.resource[source.name];
-    }
-  }
-}
-
-export interface WeightOptions {
-  readonly low: number,
-  readonly medium: number,
-  readonly high: number
-}
-
-export interface IResult {
-  score: number,
-  max_score: number,
-  passed_checks: string[],
-  failed_checks: string[],
-  percentage: number
-}
-
-export interface BaseResourceCheck {
-  name: string,
-  weighting?: string
-}
-
-export interface ConditionalResourceCheck extends BaseResourceCheck {
-  condition?: (resource: any) => boolean
-}
-
-export interface ValidatingResourceCheck extends BaseResourceCheck {
-  condition_type?: string
-}
-
-export type ResourceCheck = ConditionalResourceCheck | ValidatingResourceCheck;
-
-export interface SourceResourceCheck extends ConditionalResourceCheck, ValidatingResourceCheck {
-  resource: any
-}
+import { ResourceConditionValidator } from '../utils/validators';
+import { ResourceCheck, SourceResourceCheck, WeightOptions, IResult } from '../utils/common_interfaces';
 
 @Injectable()
 export class CompletenessCheckService{

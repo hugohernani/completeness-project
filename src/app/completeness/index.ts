@@ -9,11 +9,13 @@ import { CompletenessCheckService } from './shared/completeness-check.service';
   declarations: [],
   providers: []
 })
-export class CompletenessModule {
+export class CompletenessTrackModule {
   static forRoot(){
     return {
-      ngModule: CompletenessModule,
+      ngModule: CompletenessTrackModule,
       providers: [ CompletenessCheckService ]
     }
   }
 }
+
+export * from './shared/completeness-check.service';
