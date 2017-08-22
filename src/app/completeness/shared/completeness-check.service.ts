@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
 import { ResourceConditionValidator } from '../utils/validators';
-import { ResourceCheck, SourceResourceCheck, WeightOptions, IResult } from '../utils/common_interfaces';
+import { ResourceCheck, SourceResourceCheck, WeightOptions, IResult } from '../utils/interfaces';
 
 @Injectable()
 export class CompletenessCheckService{
