@@ -1,3 +1,7 @@
+interface IResultDictionary<T> {
+  [key: string]: T;
+}
+
 interface BaseResourceCheck {
   name: string,
   weighting?: string

@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
 import { ResourceConditionValidator } from '../utils/validators';
-import { ResourceCheck, SourceResourceCheck, WeightOptions, IResult } from '../utils/interfaces';
+import { ResourceCheck, SourceResourceCheck, WeightOptions, IResult, IResultDictionary } from '../utils/interfaces';
 
 @Injectable()
 export class CompletenessCheckService{
   public default_weights: WeightOptions;
-  private completeness_checks_arr;
+  private completeness_checks_arr: Array<SourceResourceCheck>;
   private results: BehaviorSubject<IResult>;
   constructor(){
       this.default_weights = { low: 30, medium: 60, high: 100 };
@@ -36,32 +36,43 @@ export class CompletenessCheckService{
     resource_check.weighting = weighting;
   }
 
-  getMaxCompletenessScore(): number {
-    return this.completeness_checks_arr
-      .map((source_check) => this.default_weights[source_check.weighting])
-      .reduce((prev, cur) => { return prev + cur }, 0);
+  getMaxCompletenessScore(resource?: any): number {
+    return this.calculatedScore(filteredByResource(resource))
   }
 
-  getPassedChecks(): Array<ResourceCheck> {
-    return this.getAllChecksAccordingToCheckState();
+  getPassedChecks(resource?: any): Array<ResourceCheck> {
+    return this.getAllChecksAccordingToCheckState(true, resource);
   }
 
-  getFailedChecks(): Array<ResourceCheck> {
-    return this.getAllChecksAccordingToCheckState(false);
+  getFailedChecks(resource?: any): Array<ResourceCheck> {
+    return this.getAllChecksAccordingToCheckState(false, resource);
   }
 
   getAllCompletenessChecks(): Array<ResourceCheck> {
     return this.completeness_checks_arr;
   }
 
-  getCompletenessScore(): number {
-    return this.getPassedChecks()
-      .map((check) => this.default_weights[check.weighting])
-      .reduce((prev, cur) => { return prev + cur }, 0);
+  getCompletenessScore(resource?: any): number {
+    return this.calculatedScore(this.getPassedChecks(resource))
   }
 
-  getCompletenessPercentage(): number {
-    return this.getCompletenessScore() / this.getMaxCompletenessScore() * 100;
+  getCompletenessPercentage(current_resource?: any): number {
+    return this.getCompletenessScore(current_resource) / this.getMaxCompletenessScore(current_resource) * 100;
+  }
+
+  resultsPerResource(): any {
+    let resource_results: IResultDictionary<string> = {};
+    for(let completeness_check of this.completeness_checks_arr) {
+      let current_resource = completeness_check.resource;
+      resource_results[current_resource.constructor.name] = {
+        score: this.getCompletenessScore(current_resource),
+        max_score: this.getMaxCompletenessScore(current_resource),
+        passed_checks: this.getPassedChecks(current_resource).map((r) => r.name),
+        failed_checks: this.getFailedChecks(current_resource).map((r) => r.name),
+        percentage: Math.round(this.getCompletenessPercentage(current_resource))
+      }
+    }
+    return resource_results;
   }
 
   getResults(): Observable<IResult> {
@@ -74,12 +85,13 @@ export class CompletenessCheckService{
       max_score: this.getMaxCompletenessScore(),
       passed_checks: this.getPassedChecks().map((r) => r.name),
       failed_checks: this.getFailedChecks().map((r) => r.name),
-      percentage: Math.round(this.getCompletenessPercentage())
+      percentage: Math.round(this.getCompletenessPercentage()),
+      per_resources: this.resultsPerResource()
     }));
   }
 
-  private getAllChecksAccordingToCheckState(should_pass = true): Array<ResourceCheck> {
-    return this.completeness_checks_arr
+  private getAllChecksAccordingToCheckState(should_pass = true, resource?: any): Array<ResourceCheck> {
+    return filteredByResource(resource)
       .filter(function(source){
         let result = false;
         if(source.condition_type){ result = ResourceConditionValidator.validate(source); }
@@ -105,5 +117,20 @@ export class CompletenessCheckService{
 
   private resource_check_find(attr: string): SourceResourceCheck {
     return this.completeness_checks_arr.filter((r_check) => r_check.name === attr)[0];
+  }
+
+  private calculatedScore(list_checks: Array<SourceResourceCheck>): number {
+    return list_checks
+      .map((source_check) => this.default_weights[source_check.weighting])
+      .reduce((prev, cur) => { return prev + cur }, 0);
+  }
+
+  private filteredByResource(list_checks: Array<SourceResourceCheck>,
+                     resource?: any): Array<SourceResourceCheck> {
+    if(typeof(resource) !== undefined){
+      return this.completeness_checks_arr
+        .filter((source) => source.resource === resource);
+    }
+    return this.completeness_checks_arr;
   }
 }
